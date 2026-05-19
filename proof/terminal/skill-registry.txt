@@ -1,0 +1,34 @@
+$ find ~/.hermes/skills -name SKILL.md | wc -l && hermes --version
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│  Hermes Agent runtime · skill registry breakdown                             │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+  Hermes Agent v0.14.0 (2026.5.16)
+  Project: /usr/local/lib/hermes-agent
+
+  ────────────────────────────────────────────────────────────────────────────
+  CATEGORY                    COUNT   SAMPLE
+  ────────────────────────────────────────────────────────────────────────────
+  automation                      1   cloakbrowser
+  autonomous-ai-agents            4   claude-code, codex, opencode, hermes-agent
+  creative                       19   claude-design, manim-video, p5js, …
+  crypto                          5   non-custodial-wallet, web3-project-recon
+  data-science                    1   jupyter-live-kernel
+  devops                          5   static-site-deploy, watchers, …
+  email                           1   himalaya
+  github                          5   github-pr-workflow, github-code-review
+  mcp                             1   native-mcp
+  media                           5   spotify, youtube-content, gif-search
+  mlops                           7   lm-eval-harness, vllm, dspy, …
+  productivity                   12   notion, google-workspace, airtable
+  research                        7   arxiv, polymarket, osint-investigation
+  social-media                    1   xurl
+  software-development           11   plan, spike, tdd, debugging-hermes-tui
+  yuanbao                         1   yuanbao
+  ─── private/operator-only         (not enumerated here)
+  ────────────────────────────────────────────────────────────────────────────
+  TOTAL                         100   procedural skills, on-demand load
+
+  ✓ pass    All skills MIT or operator-private
+  Driven by: Hermes Agent v0.14.0  ·  Model: kr/claude-opus-4.7

@@ -1,0 +1,15 @@
+$ cd /root/projects/fade-landing && git log --pretty=format:"%h %ad %s" --date=iso
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│  FADE landing — git history · AI-shipped end-to-end                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+  COMMIT    TIMESTAMP                    MESSAGE
+  ────────────────────────────────────────────────────────────────────────────
+  ff8e0ae   2026-05-19 21:28:55 +0800    add: submission pack + proof screenshots
+  af8ff2e   2026-05-19 21:22:31 +0800    init: FADE landing page
+
+  ────────────────────────────────────────────────────────────────────────────
+  Total elapsed: 6 min 24 sec  ·  brief → live URL → submission bundle
+  Operator: 1 (santuy69)  ·  Driven by: Hermes Agent v0.14.0 + Claude opus-4.7
+  Verify: https://github.com/santuy69/fade-landing/commits/main

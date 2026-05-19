@@ -1,0 +1,18 @@
+$ gh api /users/santuy69/repos --jq '.[] | "\(.full_name) \(.visibility) \(.description)"'
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│  santuy69 · public artifact bundle · Xiaomi MiMo 100T evaluation             │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+  REPO                              VIS      DESCRIPTION
+  ────────────────────────────────────────────────────────────────────────────
+  santuy69/fade-landing             public   FADE — onchain prediction markets
+  santuy69/alphaops-landing         public   0xMissy AlphaOps — Mimo Orbit page
+  santuy69/0xmissy-alphaops         public   Autonomous Web3 alpha discovery
+  santuy69/ai-api-tester-demo       public   AI-Powered API Testing Tool
+  santuy69/speed-check              public   Browser-based site speed test
+  santuy69/Sanztea                  public   TeaQuest
+
+  ────────────────────────────────────────────────────────────────────────────
+  Active: 6 public repos  ·  All MIT  ·  All AI-shipped
+  Operator: 1 (solo)  ·  Driven by: Hermes Agent + Claude / Cursor / Codex

@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FADE — trade the future. fade the consensus.</title>
+<meta name="description" content="Onchain prediction markets for degens. Long the truth. Short the cope." />
+<meta property="og:title" content="FADE — trade the future" />
+<meta property="og:description" content="Long the truth. Short the cope. Onchain on Base." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#06080b;
+    --bg-2:#0a0e13;
+    --surface:#0f141b;
+    --surface-2:#161d27;
+    --line:#1d2734;
+    --line-2:#2a3849;
+    --ink:#e8f2ff;
+    --ink-2:#9aa9b8;
+    --mute:#5a6878;
+    --yes:#00ff88;            /* neon green */
+    --yes-2:#00cc6e;
+    --no:#ff2d8d;             /* hot pink */
+    --no-2:#d92078;
+    --accent:#bfff00;         /* acid lime */
+    --accent-2:#9adf00;
+    --magenta:#ff00ea;
+    --cyan:#00e5ff;
+    --gold:#ffb800;
+    --radius:8px;
+    --radius-sm:4px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  body{background-image:radial-gradient(1200px 600px at 80% -10%, rgba(191,255,0,.06), transparent 60%),radial-gradient(900px 500px at 0% 30%, rgba(255,45,141,.05), transparent 60%);background-attachment:fixed}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .mono{font-family:"JetBrains Mono",monospace}
+
+  /* ===== TICKER (top, marquee finance-style) ===== */
+  .top-ticker{background:#000;border-bottom:1px solid var(--line);overflow:hidden;font-size:11.5px;font-family:"JetBrains Mono",monospace;color:var(--ink-2);height:30px;display:flex;align-items:center}
+  .top-ticker-track{display:flex;gap:32px;animation:slide 40s linear infinite;white-space:nowrap;padding-left:24px}
+  @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .top-ticker .up{color:var(--yes)}
+  .top-ticker .down{color:var(--no)}
+
+  /* ===== NAV ===== */
+  .nav{position:sticky;top:0;z-index:30;background:rgba(6,8,11,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-row{display:flex;align-items:center;gap:18px;height:64px;padding:0 24px;max-width:1440px;margin:0 auto}
+  .logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:20px;letter-spacing:-.02em;font-family:"Space Grotesk",sans-serif}
+  .logo b{color:var(--accent);font-weight:700}
+  .logo-mark{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,var(--accent) 0%, var(--yes) 100%);display:grid;place-items:center;color:#000;font-weight:800;font-size:15px;box-shadow:0 0 20px rgba(191,255,0,.35)}
+  .search{flex:1;max-width:480px;position:relative}
+  .search input{width:100%;height:38px;padding:0 14px 0 38px;border-radius:6px;background:var(--surface);border:1px solid var(--line);color:var(--ink);outline:none;font-size:13.5px;font-family:"JetBrains Mono",monospace}
+  .search input::placeholder{color:var(--mute)}
+  .search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(191,255,0,.1)}
+  .search svg{position:absolute;left:12px;top:11px;opacity:.4}
+  .nav-links{display:flex;gap:4px}
+  .nav-links a{padding:7px 12px;border-radius:5px;color:var(--ink-2);font-weight:500;font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+  .nav-links a.active,.nav-links a:hover{color:var(--ink);background:var(--surface)}
+  .nav-cta{display:flex;gap:8px;margin-left:auto}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:6px;font-weight:600;font-size:13px;border:1px solid transparent;transition:all .12s ease;text-transform:uppercase;letter-spacing:.04em;font-family:"JetBrains Mono",monospace}
+  .btn:active{transform:translateY(1px)}
+  .btn-ghost{background:var(--surface);border-color:var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-primary{background:var(--accent);color:#000;border-color:var(--accent);box-shadow:0 0 18px rgba(191,255,0,.25)}
+  .btn-primary:hover{background:#d4ff3d;box-shadow:0 0 24px rgba(191,255,0,.45)}
+
+  /* ===== HERO ===== */
+  .hero{padding:64px 24px 36px;max-width:1440px;margin:0 auto;position:relative}
+  .hero h1{font-size:64px;line-height:.96;letter-spacing:-.035em;font-weight:700;margin:0 0 18px;text-wrap:balance;font-family:"Space Grotesk",sans-serif}
+  .hero h1 em{font-style:normal;color:var(--accent);text-shadow:0 0 24px rgba(191,255,0,.3)}
+  .hero h1 .strike{color:var(--no);text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:var(--no)}
+  .hero p{margin:0;color:var(--ink-2);font-size:17px;max-width:580px;line-height:1.55}
+  .hero p code{background:var(--surface);padding:2px 8px;border-radius:4px;border:1px solid var(--line);color:var(--accent);font-family:"JetBrains Mono",monospace;font-size:14px}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:24px;margin-top:32px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+  .hero-meta b{color:var(--ink);font-weight:600;display:block;font-size:24px;margin-top:4px;letter-spacing:-.01em}
+  .hero-meta b.up{color:var(--yes)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--yes);display:inline-block;margin-right:8px;box-shadow:0 0 0 4px rgba(0,255,136,.18);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(0,255,136,.18)}50%{box-shadow:0 0 0 8px rgba(0,255,136,.04)}}
+
+  .hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+  .hero-tag{font-family:"JetBrains Mono",monospace;font-size:11px;padding:5px 10px;border:1px solid var(--line);border-radius:4px;color:var(--ink-2);background:var(--surface);text-transform:uppercase;letter-spacing:.05em}
+  .hero-tag.live{border-color:var(--yes);color:var(--yes)}
+
+  /* ===== CATEGORY STRIP ===== */
+  .cats{max-width:1440px;margin:24px auto 0;padding:0 24px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .pill{padding:8px 14px;border-radius:5px;border:1px solid var(--line);background:var(--surface);font-size:12.5px;color:var(--ink-2);white-space:nowrap;cursor:pointer;transition:.12s;font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.04em;font-weight:500}
+  .pill:hover{border-color:var(--accent);color:var(--accent)}
+  .pill.on{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
+
+  /* ===== SECTION ===== */
+  section.block{max-width:1440px;margin:0 auto;padding:32px 24px}
+  .row-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:18px;gap:16px}
+  .row-head h2{margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em;font-family:"Space Grotesk",sans-serif}
+  .row-head h2 .acc{color:var(--accent)}
+  .row-head .sub{color:var(--mute);font-size:12.5px;font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+  .row-head a{color:var(--accent);font-size:12.5px;font-weight:600;font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.05em}
+  .row-head a:hover{text-shadow:0 0 12px rgba(191,255,0,.5)}
+
+  /* ===== FEATURED ===== */
+  .featured{display:grid;grid-template-columns:1.55fr 1fr;gap:14px;margin-bottom:14px}
+  @media (max-width:880px){.featured{grid-template-columns:1fr}}
+  .feat-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden}
+  .feat-card::before{content:"";position:absolute;inset:0;background:radial-gradient(700px 220px at 90% -20%, rgba(191,255,0,.12), transparent 60%),radial-gradient(500px 160px at 0% 110%, rgba(255,45,141,.08), transparent 60%);pointer-events:none}
+  .feat-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:4px;background:rgba(191,255,0,.08);border:1px solid rgba(191,255,0,.4);color:var(--accent);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;width:fit-content;font-family:"JetBrains Mono",monospace}
+  .feat-q{font-size:30px;font-weight:600;line-height:1.1;letter-spacing:-.02em;text-wrap:balance;font-family:"Space Grotesk",sans-serif}
+  .feat-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;border-top:1px solid var(--line);padding-top:16px;position:relative}
+  .feat-stat .label{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;font-weight:500;font-family:"JetBrains Mono",monospace}
+  .feat-stat .v{font-size:22px;font-weight:600;margin-top:4px;font-family:"JetBrains Mono",monospace;letter-spacing:-.01em}
+  .feat-actions{display:flex;gap:10px;margin-top:auto;position:relative}
+  .feat-actions .yn{flex:1}
+  .feat-actions .yn button{padding:14px 0;font-size:14px}
+
+  .feat-side{display:flex;flex-direction:column;gap:14px}
+  .side-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  .side-card h3{margin:0 0 12px;font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;font-weight:600;font-family:"JetBrains Mono",monospace;display:flex;justify-content:space-between;align-items:center}
+  .side-card h3 .badge{color:var(--accent);font-size:10px}
+  .lb{display:flex;flex-direction:column;gap:11px}
+  .lb-row{display:flex;align-items:center;gap:10px;font-size:13px}
+  .lb-rank{width:18px;color:var(--mute);font-weight:600;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px}
+  .lb-rank.top{color:var(--accent)}
+  .lb-name{flex:1;font-weight:500;font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink-2)}
+  .lb-pnl{font-weight:600;font-family:"JetBrains Mono",monospace;font-size:13px}
+  .lb-pnl.up{color:var(--yes)}
+  .lb-pnl.down{color:var(--no)}
+
+  .stat-big{font-size:34px;font-weight:600;letter-spacing:-.025em;font-family:"JetBrains Mono",monospace;color:var(--accent);line-height:1}
+
+  /* ===== Live activity ticker (mid) ===== */
+  .ticker{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:14px;font-size:12.5px;color:var(--ink-2);overflow:hidden;font-family:"JetBrains Mono",monospace}
+  .ticker .live{display:inline-flex;align-items:center;gap:6px;color:var(--no);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding-right:14px;border-right:1px solid var(--line);flex-shrink:0}
+  .ticker .live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--no);animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:.3}}
+  .ticker-track{display:flex;gap:32px;animation:slide 35s linear infinite;white-space:nowrap}
+  .ticker:hover .ticker-track{animation-play-state:paused}
+  .ticker-item b{color:var(--ink)}
+  .ticker-item .yes{color:var(--yes)}
+  .ticker-item .no{color:var(--no)}
+
+  /* ===== MARKET GRID ===== */
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  @media (max-width:1180px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:880px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:12px;transition:all .15s;position:relative}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 0 0 1px rgba(191,255,0,.1), 0 8px 24px rgba(0,0,0,.4)}
+  .card-head{display:flex;align-items:center;gap:10px}
+  .icon{width:36px;height:36px;border-radius:6px;background:var(--surface-2);display:grid;place-items:center;font-size:18px;flex-shrink:0;border:1px solid var(--line)}
+  .card-tag{font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;font-weight:600;font-family:"JetBrains Mono",monospace}
+  .card-q{font-size:14.5px;font-weight:500;line-height:1.3;color:var(--ink);min-height:38px;text-wrap:pretty;font-family:"Space Grotesk",sans-serif}
+  .odds{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:6px;background:var(--bg-2);border:1px solid var(--line)}
+  .odds-pct{font-size:24px;font-weight:600;letter-spacing:-.02em;font-family:"JetBrains Mono",monospace}
+  .odds-pct.up{color:var(--yes)}
+  .odds-pct.down{color:var(--no)}
+  .odds-bar{position:relative;height:4px;border-radius:2px;background:rgba(255,45,141,.25);overflow:hidden;margin-top:8px}
+  .odds-bar > i{position:absolute;left:0;top:0;bottom:0;background:var(--yes);border-radius:2px;display:block;box-shadow:0 0 8px rgba(0,255,136,.4)}
+  .odds-meta{font-size:10.5px;color:var(--mute);margin-top:6px;display:flex;justify-content:space-between;font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.04em}
+  .yn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .yn button{padding:10px 0;border-radius:6px;font-weight:600;font-size:13px;border:1px solid;letter-spacing:.04em;transition:.12s;font-family:"JetBrains Mono",monospace;text-transform:uppercase}
+  .yn .yes{background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.4);color:var(--yes)}
+  .yn .yes:hover{background:rgba(0,255,136,.18);border-color:var(--yes);box-shadow:0 0 12px rgba(0,255,136,.25)}
+  .yn .no{background:rgba(255,45,141,.08);border-color:rgba(255,45,141,.4);color:var(--no)}
+  .yn .no:hover{background:rgba(255,45,141,.18);border-color:var(--no);box-shadow:0 0 12px rgba(255,45,141,.25)}
+  .card-foot{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.04em}
+  .card-foot b{color:var(--ink-2);font-weight:500}
+  .card.hot::after{content:"🔥";position:absolute;top:10px;right:10px;font-size:16px;filter:drop-shadow(0 0 6px rgba(255,184,0,.5))}
+
+  /* ===== HOW IT WORKS ===== */
+  .how{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:880px){.how{grid-template-columns:1fr}}
+  .step{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;position:relative;transition:.15s}
+  .step:hover{border-color:var(--accent)}
+  .step .n{font-family:"JetBrains Mono",monospace;font-size:42px;color:var(--accent);font-weight:700;margin-bottom:12px;letter-spacing:-.04em;line-height:1;text-shadow:0 0 20px rgba(191,255,0,.3)}
+  .step h4{margin:0 0 8px;font-size:18px;font-weight:600;letter-spacing:-.01em;font-family:"Space Grotesk",sans-serif}
+  .step p{margin:0;color:var(--ink-2);font-size:13.5px;line-height:1.6}
+  .step p code{background:var(--bg-2);padding:1px 6px;border-radius:3px;border:1px solid var(--line);color:var(--accent);font-family:"JetBrains Mono",monospace;font-size:12px}
+
+  /* ===== CTA STRIP ===== */
+  .cta{max-width:1440px;margin:32px auto;padding:0 24px}
+  .cta-inner{background:linear-gradient(135deg,var(--surface) 0%, var(--surface-2) 100%);border:1px solid var(--line);border-radius:var(--radius);padding:48px 36px;text-align:center;position:relative;overflow:hidden}
+  .cta-inner::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 200px at 50% 0%, rgba(191,255,0,.12), transparent 60%);pointer-events:none}
+  .cta h2{margin:0 0 12px;font-size:42px;font-weight:600;letter-spacing:-.03em;font-family:"Space Grotesk",sans-serif;text-wrap:balance;line-height:1.05}
+  .cta h2 em{font-style:normal;color:var(--accent)}
+  .cta p{margin:0 0 24px;color:var(--ink-2);font-size:15px;max-width:480px;margin-left:auto;margin-right:auto}
+  .cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn-lg{padding:14px 28px;font-size:14px}
+
+  /* ===== FOOTER ===== */
+  footer{border-top:1px solid var(--line);margin-top:24px;padding:32px 24px;color:var(--mute);font-size:12px;font-family:"JetBrains Mono",monospace}
+  .foot-row{max-width:1440px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+  .foot-links{display:flex;gap:18px;flex-wrap:wrap}
+  .foot-links a{text-transform:uppercase;letter-spacing:.05em}
+  .foot-links a:hover{color:var(--accent)}
+  .disclaimer{max-width:380px;line-height:1.6}
+
+  /* responsive nav */
+  @media (max-width:880px){
+    .nav-links{display:none}
+    .hero h1{font-size:42px}
+    .feat-q{font-size:22px}
+    .cta h2{font-size:30px}
+    .feat-stats{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== TOP TICKER ========== -->
+<div class="top-ticker">
+  <div class="top-ticker-track">
+    <span>BTC <span class="up">$112,840 ▲ 2.3%</span></span>
+    <span>ETH <span class="up">$5,920 ▲ 1.1%</span></span>
+    <span>SOL <span class="down">$248 ▼ 0.8%</span></span>
+    <span>FADE 24H VOL <span class="up">$24.7M ▲ 18%</span></span>
+    <span>OPEN INTEREST <span class="up">$142M</span></span>
+    <span>ACTIVE MARKETS <span>4,812</span></span>
+    <span>LARGEST POS <span class="up">whale.eth $284K @ BTC $150K YES</span></span>
+    <!-- duplicate for seamless loop -->
+    <span>BTC <span class="up">$112,840 ▲ 2.3%</span></span>
+    <span>ETH <span class="up">$5,920 ▲ 1.1%</span></span>
+    <span>SOL <span class="down">$248 ▼ 0.8%</span></span>
+    <span>FADE 24H VOL <span class="up">$24.7M ▲ 18%</span></span>
+    <span>OPEN INTEREST <span class="up">$142M</span></span>
+  </div>
+</div>
+
+<!-- ========== NAV ========== -->
+<header class="nav">
+  <div class="nav-row">
+    <a class="logo" href="#">
+      <span class="logo-mark">F</span>
+      FADE<b>.</b>
+    </a>
+
+    <div class="search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+      <input placeholder="search markets / paste address..." />
+    </div>
+
+    <nav class="nav-links">
+      <a href="#" class="active">Markets</a>
+      <a href="#">Live</a>
+      <a href="#">Leaderboard</a>
+      <a href="#">Docs</a>
+    </nav>
+
+    <div class="nav-cta">
+      <button class="btn btn-ghost">Sign in</button>
+      <button class="btn btn-primary">Connect</button>
+    </div>
+  </div>
+</header>
+
+<!-- ========== HERO ========== -->
+<section class="hero">
+  <h1>long the truth.<br/><em>fade the cope.</em></h1>
+  <p>Onchain prediction markets for people who already know. Bet on elections, kripto, AI drops, sports, geopolitics — settle in <code>USDC on Base</code>. No KYC, no custody, no admin.</p>
+
+  <div class="hero-meta">
+    <div>
+      <span><span class="dot"></span>24H VOLUME</span>
+      <b class="up">$24,712,408</b>
+    </div>
+    <div>
+      <span>OPEN INTEREST</span>
+      <b>$142.3M</b>
+    </div>
+    <div>
+      <span>ACTIVE MARKETS</span>
+      <b>4,812</b>
+    </div>
+    <div>
+      <span>DEGENS ONLINE</span>
+      <b>12,730</b>
+    </div>
+  </div>
+
+  <div class="hero-tags">
+    <span class="hero-tag live">● LIVE — BASE MAINNET</span>
+    <span class="hero-tag">⚡ 0.20% TAKER FEE</span>
+    <span class="hero-tag">🔓 NO KYC</span>
+    <span class="hero-tag">🟢 SELF-CUSTODY</span>
+    <span class="hero-tag">⛽ &lt;$0.01 GAS</span>
+  </div>
+</section>
+
+<!-- ========== CATEGORIES ========== -->
+<div class="cats">
+  <button class="pill on">All</button>
+  <button class="pill">🚀 Pump</button>
+  <button class="pill">💀 Rug</button>
+  <button class="pill">🪙 Crypto</button>
+  <button class="pill">🤖 AI</button>
+  <button class="pill">🗳️ Politik</button>
+  <button class="pill">⚽ Sports</button>
+  <button class="pill">🎰 Memes</button>
+  <button class="pill">📉 Macro</button>
+  <button class="pill">🌍 Geopol</button>
+  <button class="pill">🐋 Whales</button>
+</div>
+
+<!-- ========== FEATURED ========== -->
+<section class="block">
+  <div class="row-head">
+    <div>
+      <h2>Trending <span class="acc">//</span> max degeneracy</h2>
+      <div class="sub">Highest volume — last 24h</div>
+    </div>
+    <a href="#">all markets →</a>
+  </div>
+
+  <div class="featured">
+    <div class="feat-card">
+      <span class="feat-tag">▲ #1 trending</span>
+      <div class="feat-q">Will BTC tag <span style="color:var(--accent)">$150,000</span> before EOY 2026?</div>
+
+      <div class="feat-stats">
+        <div class="feat-stat"><div class="label">Yes</div><div class="v" style="color:var(--yes)">62¢</div></div>
+        <div class="feat-stat"><div class="label">No</div><div class="v" style="color:var(--no)">38¢</div></div>
+        <div class="feat-stat"><div class="label">Volume 24h</div><div class="v">$3.21M</div></div>
+        <div class="feat-stat"><div class="label">Resolves</div><div class="v">Dec 31</div></div>
+      </div>
+
+      <div class="feat-actions">
+        <div class="yn">
+          <button class="yes">Long Yes · 62¢</button>
+          <button class="no">Short No · 38¢</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat-side">
+      <div class="side-card">
+        <h3>Top Degens 7d <span class="badge">▲ pnl</span></h3>
+        <div class="lb">
+          <div class="lb-row"><span class="lb-rank top">01</span><span class="lb-name">whale.eth</span><span class="lb-pnl up">+$148,200</span></div>
+          <div class="lb-row"><span class="lb-rank top">02</span><span class="lb-name">degentrade</span><span class="lb-pnl up">+$92,400</span></div>
+          <div class="lb-row"><span class="lb-rank top">03</span><span class="lb-name">0x...A064c</span><span class="lb-pnl up">+$71,830</span></div>
+          <div class="lb-row"><span class="lb-rank">04</span><span class="lb-name">marketmaker</span><span class="lb-pnl up">+$54,210</span></div>
+          <div class="lb-row"><span class="lb-rank">05</span><span class="lb-name">predictr.eth</span><span class="lb-pnl down">−$12,084</span></div>
+          <div class="lb-row"><span class="lb-rank">06</span><span class="lb-name">copium.eth</span><span class="lb-pnl down">−$28,900</span></div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>24h Volume <span class="badge">▲ 18.2%</span></h3>
+        <div class="stat-big">$24.7M</div>
+        <div style="color:var(--ink-2);font-size:11.5px;margin-top:6px;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;text-transform:uppercase">vs $20.9M yesterday</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- live ticker -->
+  <div class="ticker" style="margin-top:14px">
+    <span class="live">live</span>
+    <div class="ticker-track">
+      <span class="ticker-item">whale.eth → <span class="yes">YES</span> · BTC $150K · <b>$24,000</b></span>
+      <span class="ticker-item">degentrade → <span class="no">NO</span> · US Election · <b>$8,500</b></span>
+      <span class="ticker-item">marketmaker → <span class="yes">YES</span> · ETH ETF Spot · <b>$15,200</b></span>
+      <span class="ticker-item">0xA064c → <span class="yes">YES</span> · UCL Final · <b>$3,100</b></span>
+      <span class="ticker-item">predictr → <span class="no">NO</span> · GPT-6 Q2 · <b>$11,400</b></span>
+      <span class="ticker-item">satoshi.eth → <span class="yes">YES</span> · BTC dom 60% · <b>$6,750</b></span>
+      <span class="ticker-item">cope.eth → <span class="no">NO</span> · Fed cut June · <b>$4,200</b></span>
+      <!-- duplicate -->
+      <span class="ticker-item">whale.eth → <span class="yes">YES</span> · BTC $150K · <b>$24,000</b></span>
+      <span class="ticker-item">degentrade → <span class="no">NO</span> · US Election · <b>$8,500</b></span>
+      <span class="ticker-item">marketmaker → <span class="yes">YES</span> · ETH ETF Spot · <b>$15,200</b></span>
+      <span class="ticker-item">0xA064c → <span class="yes">YES</span> · UCL Final · <b>$3,100</b></span>
+    </div>
+  </div>
+</section>
+
+<!-- ========== MARKET GRID ========== -->
+<section class="block">
+  <div class="row-head">
+    <div>
+      <h2>Hot markets <span class="acc">//</span> right now</h2>
+      <div class="sub">Last hour — sorted by volume velocity</div>
+    </div>
+    <a href="#">filters →</a>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</section>
+
+<!-- ========== HOW IT WORKS ========== -->
+<section class="block">
+  <div class="row-head">
+    <div>
+      <h2>How to <span class="acc">fade</span></h2>
+      <div class="sub">Three steps. Zero friction.</div>
+    </div>
+  </div>
+
+  <div class="how">
+    <div class="step">
+      <div class="n">01</div>
+      <h4>Connect & deposit</h4>
+      <p>Hit <code>connect</code>, sign once with any EVM wallet. Top up <code>USDC</code> on Base — gas is sub-cent. Self-custody throughout, your keys never leave the wallet.</p>
+    </div>
+    <div class="step">
+      <div class="n">02</div>
+      <h4>Long truth, short cope</h4>
+      <p>Every market has a <code>Yes</code> and <code>No</code> price between 1¢ and 99¢. That's the live probability. Buy the side you believe. Exit anytime — markets stay liquid 24/7.</p>
+    </div>
+    <div class="step">
+      <div class="n">03</div>
+      <h4>Auto-payout, onchain</h4>
+      <p>When the market resolves, winning shares pay <code>$1.00</code> each. Settlement is automatic — no admin queue, no withdrawal forms, no permission. You won, you got paid.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CTA STRIP ========== -->
+<section class="cta">
+  <div class="cta-inner">
+    <h2>The market <em>knows</em>.<br/>Position before it does.</h2>
+    <p>You've been right too many times to keep tweeting it for free. Connect, take the position, and let the chain settle the score.</p>
+    <div class="cta-btns">
+      <button class="btn btn-primary btn-lg">Connect wallet →</button>
+      <button class="btn btn-ghost btn-lg">Read docs</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div class="foot-row">
+    <div>
+      <a class="logo" href="#" style="margin-bottom:10px">
+        <span class="logo-mark">F</span>FADE<b>.</b>
+      </a>
+      <div class="disclaimer" style="margin-top:10px">Onchain prediction markets on Base. Not financial advice. Restricted in some jurisdictions — check before trading. <span style="color:var(--no)">DYOR. NFA. WAGMI.</span></div>
+    </div>
+    <div class="foot-links">
+      <a href="#">Markets</a>
+      <a href="#">Docs</a>
+      <a href="#">API</a>
+      <a href="#">GitHub</a>
+      <a href="#">X / Twitter</a>
+      <a href="#">Discord</a>
+      <a href="#">Status</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ============ MARKETS ============
+  const markets = [
+    {tag:"POLITIK", icon:"🇺🇸", q:"Trump fires Fed Chair before 2027?", yes:34, vol:"$2.14M", end:"Dec 2026", hot:true},
+    {tag:"CRYPTO", icon:"⟠", q:"ETH breaks $6,000 before June 30?", yes:41, vol:"$1.62M", end:"Jun 30"},
+    {tag:"AI", icon:"🤖", q:"OpenAI ships GPT-6 before Q4 2026?", yes:19, vol:"$1.31M", end:"Q4 2026"},
+    {tag:"CRYPTO", icon:"₿", q:"BTC dominance &gt; 60% by end of Q3?", yes:67, vol:"$745K", end:"Sep 30", hot:true},
+    {tag:"MEMES", icon:"🐸", q:"PEPE flips DOGE in marketcap this year?", yes:12, vol:"$890K", end:"Dec 31"},
+    {tag:"MACRO", icon:"📉", q:"US recession declared official in 2026?", yes:23, vol:"$1.04M", end:"Dec 31"},
+    {tag:"SPORTS", icon:"⚽", q:"Real Madrid wins UCL 2026?", yes:28, vol:"$612K", end:"Jun 2026"},
+    {tag:"CRYPTO", icon:"🟣", q:"Solana ETF approved by SEC in 2026?", yes:48, vol:"$1.88M", end:"Dec 31", hot:true}
+  ];
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML = markets.map(m => {
+    const no = 100 - m.yes;
+    const dir = m.yes >= 50 ? "up" : "down";
+    const traders = (Math.random()*1500|0)+200;
+    return `
+      <article class="card${m.hot?" hot":""}">
+        <div class="card-head">
+          <div class="icon">${m.icon}</div>
+          <div>
+            <div class="card-tag">${m.tag}</div>
+            <div style="font-size:10.5px;color:var(--mute);font-family:'JetBrains Mono',monospace;letter-spacing:.04em;text-transform:uppercase;margin-top:2px">ends ${m.end}</div>
+          </div>
+        </div>
+        <div class="card-q">${m.q}</div>
+        <div>
+          <div class="odds">
+            <div>
+              <div class="card-tag">YES</div>
+              <div class="odds-pct ${dir}">${m.yes}%</div>
+            </div>
+            <div style="text-align:right">
+              <div class="card-tag">NO</div>
+              <div class="odds-pct" style="color:var(--ink-2);font-size:18px">${no}%</div>
+            </div>
+          </div>
+          <div class="odds-bar"><i style="width:${m.yes}%"></i></div>
+          <div class="odds-meta"><span>YES ${m.yes}¢</span><span>NO ${no}¢</span></div>
+        </div>
+        <div class="yn">
+          <button class="yes">YES ${m.yes}¢</button>
+          <button class="no">NO ${no}¢</button>
+        </div>
+        <div class="card-foot">
+          <span>VOL <b>${m.vol}</b></span>
+          <span>● ${traders} degens</span>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  // ============ Category pills ============
+  document.querySelectorAll(".pill").forEach(p => p.addEventListener("click", () => {
+    document.querySelectorAll(".pill").forEach(x => x.classList.remove("on"));
+    p.classList.add("on");
+  }));
+
+  // ============ Button feedback ============
+  document.querySelectorAll(".yn button, .btn").forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation();
+    b.style.transform = "scale(0.96)";
+    setTimeout(() => b.style.transform = "", 120);
+  }));
+
+  // ============ Live numbers (subtle increment) ============
+  const volEl = document.querySelector(".hero-meta b.up");
+  let vol = 24712408;
+  setInterval(() => {
+    vol += Math.floor(Math.random() * 8000);
+    volEl.textContent = "$" + vol.toLocaleString("en-US");
+  }, 3000);
+</script>
+</body>
+</html>
